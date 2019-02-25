@@ -20,9 +20,9 @@ public:
 	{
 		m_seg_result = new int[65536]();
 	}
-	Cseg(std::string img_path);
+	Cseg(std::string Aimg_path);
 	~Cseg();
-	int * get_seg_result();
+	int * GetSegResult();
 private:
 	int *m_seg_result;
 };

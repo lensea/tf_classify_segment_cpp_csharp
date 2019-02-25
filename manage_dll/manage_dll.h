@@ -7,14 +7,14 @@
 
 using namespace System;
 
-namespace manage_dll
+namespace ManageDll
 {
-	public ref class manage_cls
+	public ref class ManageCls
 	{
 	public:
-		manage_cls();
-		manage_cls(String ^img_path);
-		~manage_cls();
+		ManageCls();
+		ManageCls(String ^Aimg_path);
+		~ManageCls();
 		property int cls_id
 		{
 			int get();
@@ -27,15 +27,15 @@ namespace manage_dll
 		Ccls *m_cls;
 	};
 }
-namespace manage_dll
+namespace ManageDll
 {
-	public ref class manage_seg
+	public ref class ManageSeg
 	{
 	public:
-		manage_seg();
-		manage_seg(String ^img_path);
-		~manage_seg();
-		cli::array<int>^ get_reult();
+		ManageSeg();
+		ManageSeg(String ^Aimg_path);
+		~ManageSeg();
+		cli::array<int>^ GetReult();
 	private:
 		Cseg *m_seg;
 		cli::array<int>^ m_arr ;

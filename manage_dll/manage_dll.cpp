@@ -13,68 +13,68 @@ using namespace std;
 using namespace msclr::interop;
 
 
-void MarshalString(String^ s, string& os) {
+void MarshalString(String^ Aistr, string& Aostr) {
 	using namespace System::Runtime::InteropServices;
-	const char* chars = (const char*)(Marshal::StringToHGlobalAnsi(s)).ToPointer();
-	os = chars;
+	const char* chars = (const char*)(Marshal::StringToHGlobalAnsi(Aistr)).ToPointer();
+	Aostr = chars;
 	Marshal::FreeHGlobal(IntPtr((void*)chars));
 }
 
-namespace manage_dll
+namespace ManageDll
 {
-	manage_cls::manage_cls()
+	ManageCls::ManageCls()
 	{
 		m_cls = new Ccls();
 	}
-	manage_cls::manage_cls(String ^img_path)
+	ManageCls::ManageCls(String ^Aimg_path)
 	{
 		std::string std_img_path;
-		MarshalString(img_path, std_img_path);
+		MarshalString(Aimg_path, std_img_path);
 		//pin_ptr<const wchar_t> wch = PtrToStringChars(img_path);
 		//std_img_path = marshal_as<std::string>(img_path);
 		//std::cout << std_img_path << std::endl;
 		m_cls = new Ccls(std_img_path);
 	}
-	manage_cls::~manage_cls()
+	ManageCls::~ManageCls()
 	{
 		delete m_cls;
 	}
-	int manage_cls::cls_id::get()
+	int ManageCls::cls_id::get()
 	{
-		return m_cls->get_cls_id();
+		return m_cls->GetClsId();
 	}
-	double manage_cls::cls_prob::get()
+	double ManageCls::cls_prob::get()
 	{
-		return m_cls->get_cls_prob();
+		return m_cls->GetClsProb();
 	}
 }
 
-namespace manage_dll
+namespace ManageDll
 {
-	manage_seg::manage_seg()
+	ManageSeg::ManageSeg()
 	{
 		m_arr = gcnew cli::array<int>(65536);
 		m_seg = new Cseg();
 	}
-	manage_seg::manage_seg(String ^img_path)
+	ManageSeg::ManageSeg(String ^Aimg_path)
 	{
 		m_arr = gcnew cli::array<int>(65536);
 		std::string std_img_path;
-		MarshalString(img_path, std_img_path);
+		MarshalString(Aimg_path, std_img_path);
 		//pin_ptr<const wchar_t> wch = PtrToStringChars(img_path);
 		//std_img_path = marshal_as<std::string>(img_path);
 		//std::cout << std_img_path << std::endl;
 		m_seg = new Cseg(std_img_path);
 	}
-	manage_seg::~manage_seg()
+	ManageSeg::~ManageSeg()
 	{
 		delete m_seg;
 		m_arr = nullptr;
 		//delete m_arr;
 	}
-	cli::array<int>^ manage_seg::get_reult()
+	cli::array<int>^ ManageSeg::GetReult()
 	{
-		int * result = m_seg->get_seg_result();
+		int * result = m_seg->GetSegResult();
 		for (int i = 0; i < 65536; ++i)
 		{
 			m_arr[i] = result[i];

@@ -33,33 +33,33 @@ using tensorflow::Status;
 using tensorflow::string;
 using tensorflow::int32;
 
-static Status ReadEntireFile(tensorflow::Env* env, const string& filename,
-	Tensor* output) {
+static Status ReadEntireFile(tensorflow::Env* Aenv, const string& Afilename,
+	Tensor* Aoutput) {
 	tensorflow::uint64 file_size = 0;
-	TF_RETURN_IF_ERROR(env->GetFileSize(filename, &file_size));
+	TF_RETURN_IF_ERROR(Aenv->GetFileSize(Afilename, &file_size));
 
 	string contents;
 	contents.resize(file_size);
 
 	std::unique_ptr<tensorflow::RandomAccessFile> file;
-	TF_RETURN_IF_ERROR(env->NewRandomAccessFile(filename, &file));
+	TF_RETURN_IF_ERROR(Aenv->NewRandomAccessFile(Afilename, &file));
 
 	tensorflow::StringPiece data;
 	TF_RETURN_IF_ERROR(file->Read(0, file_size, &data, &(contents)[0]));
 	if (data.size() != file_size) {
-		return tensorflow::errors::DataLoss("Truncated read of '", filename,
+		return tensorflow::errors::DataLoss("Truncated read of '", Afilename,
 			"' expected ", file_size, " got ",
 			data.size());
 	}
-	output->scalar<string>()() = data.ToString();
+	Aoutput->scalar<string>()() = data.ToString();
 
 	return Status::OK();
 }
 
-Status ReadTensorFromImageFile(const string& file_name, const int input_height,
-	const int input_width, const float input_mean,
-	const float input_std,
-	std::vector<Tensor>* out_tensors)
+Status ReadTensorFromImageFile(const string& Afile_name, const int Ainput_height,
+	const int Ainput_width, const float Ainput_mean,
+	const float Ainput_std,
+	std::vector<Tensor>* Aout_tensors)
 {
 	auto root = tensorflow::Scope::NewRootScope();
 	using namespace ::tensorflow::ops;  // NOLINT(build/namespaces)
@@ -70,7 +70,7 @@ Status ReadTensorFromImageFile(const string& file_name, const int input_height,
 	// read file_name into a tensor named input
 	Tensor input(tensorflow::DT_STRING, tensorflow::TensorShape());
 	TF_RETURN_IF_ERROR(
-		ReadEntireFile(tensorflow::Env::Default(), file_name, &input));
+		ReadEntireFile(tensorflow::Env::Default(), Afile_name, &input));
 
 	// use a placeholder to read input data
 	auto file_reader =
@@ -83,17 +83,17 @@ Status ReadTensorFromImageFile(const string& file_name, const int input_height,
 	// Now try to figure out what kind of file it is and decode it.
 	const int wanted_channels = 3;
 	tensorflow::Output image_reader;
-	if (tensorflow::StringPiece(file_name).ends_with(".png")) {
+	if (tensorflow::StringPiece(Afile_name).ends_with(".png")) {
 		image_reader = DecodePng(root.WithOpName("png_reader"), file_reader,
 			DecodePng::Channels(wanted_channels));
 	}
-	else if (tensorflow::StringPiece(file_name).ends_with(".gif")) {
+	else if (tensorflow::StringPiece(Afile_name).ends_with(".gif")) {
 		// gif decoder returns 4-D tensor, remove the first dim
 		image_reader =
 			Squeeze(root.WithOpName("squeeze_first_dim"),
 				DecodeGif(root.WithOpName("gif_reader"), file_reader));
 	}
-	else if (tensorflow::StringPiece(file_name).ends_with(".bmp")) {
+	else if (tensorflow::StringPiece(Afile_name).ends_with(".bmp")) {
 		image_reader = DecodeBmp(root.WithOpName("bmp_reader"), file_reader);
 	}
 	else {
@@ -112,10 +112,10 @@ Status ReadTensorFromImageFile(const string& file_name, const int input_height,
 	// Bilinearly resize the image to fit the required dimensions.
 	auto resized = ResizeBilinear(
 		root, dims_expander,
-		Const(root.WithOpName("size"), { input_height, input_width }));
+		Const(root.WithOpName("size"), { Ainput_height, Ainput_width }));
 	// Subtract the mean and divide by the scale.
-	//Div(root.WithOpName(output_name), Sub(root, resized, {input_mean}),
-	//{input_std});
+	//Div(root.WithOpName(output_name), Sub(root, resized, {Ainput_mean}),
+	//{Ainput_std});
 	//float input_max = 255;
 	//Div(root.WithOpName("div"), dims_expander, input_max);
 	// This runs the GraphDef network definition that we've just constructed, and
@@ -127,14 +127,14 @@ Status ReadTensorFromImageFile(const string& file_name, const int input_height,
 	std::unique_ptr<tensorflow::Session> session(
 		tensorflow::NewSession(tensorflow::SessionOptions()));
 	TF_RETURN_IF_ERROR(session->Create(graph));
-	TF_RETURN_IF_ERROR(session->Run({ inputs }, { "resized_float" }, {}, out_tensors));
+	TF_RETURN_IF_ERROR(session->Run({ inputs }, { "resized_float" }, {}, Aout_tensors));
 	return Status::OK();
 }
 
 
 // This is the constructor of a class that has been exported.
 // see classify.h for the class definition
-Ccls::Ccls(std::string img_path)
+Ccls::Ccls(std::string Aimg_path)
 {
 	Session* session;
 	Status status = NewSession(SessionOptions(), &session);//创建新会话Session
@@ -159,7 +159,7 @@ Ccls::Ccls(std::string img_path)
 	int input_std = 1;
 	std::vector<Tensor> resized_tensors;
 	Status read_tensor_status =
-		ReadTensorFromImageFile(img_path, input_height, input_width, input_mean,
+		ReadTensorFromImageFile(Aimg_path, input_height, input_width, input_mean,
 			input_std, &resized_tensors);
 	if (!read_tensor_status.ok()) {
 		LOG(ERROR) << read_tensor_status;
@@ -202,11 +202,11 @@ Ccls::Ccls(std::string img_path)
 	}
 }
 
-int Ccls::get_cls_id()
+int Ccls::GetClsId()
 {
 	return m_cls_id;
 }
-double Ccls::get_cls_prob()
+double Ccls::GetClsProb()
 {
 	return m_cls_prob;
 }

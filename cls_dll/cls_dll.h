@@ -25,9 +25,9 @@ public:
 		m_cls_id = 0;
 		m_cls_prob = 0.0;
 	}
-	Ccls(std::string img_path);
-	int get_cls_id();
-	double get_cls_prob();
+	Ccls(std::string Aimg_path);
+	int GetClsId();
+	double GetClsProb();
 private:
 	int m_cls_id;
 	double m_cls_prob;
